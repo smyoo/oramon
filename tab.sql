@@ -1,6 +1,9 @@
 /***********************************************
+<<Desciption>>
 List up TABLE information
-- input param 1 : table name
+
+<<Usage>>
+SQL> @tbs TABLE_NAME
 ************************************************/
 
 @env

@@ -4,6 +4,8 @@ List up TABLE information
 
 <<Usage>>
 SQL> @tbs TABLE_NAME
+
+
 ************************************************/
 
 @env

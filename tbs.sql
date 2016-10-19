@@ -8,17 +8,18 @@ SQL> @tbs PART_OF_NAME
 
 @env
 
-define _t_name = &_table_name
+define __tbs = &part_of_tablespace_name
 
-select a.TABLE_NAME, a.OWNER, a.TABLESPACE_NAME, a.IOT_TYPE, a.LOGGING, a.DEGREE, a.PARTITIONED, a.COMPRESSION, seg.bytes/1024/1024 as size_mb, tc.comments
-from dba_tables a, dba_tab_comments tc,
-     (select owner, segment_name, sum(bytes) as bytes
-      from dba_segments
-      where segment_name like '%'||upper('&_t_name')||'%' and segment_type like 'TABLE%'
-      group by owner, segment_name
-      ) seg
-where a.owner=tc.owner(+) and a.table_name=tc.table_name(+)
-and a.owner=seg.owner(+) and a.table_name=seg.segment_name(+)
-and a.table_name like '%'||upper('&_t_name')||'%'
-order by a.TABLE_NAME, a.OWNER
+select a.tablespace_name, a.mbytes "total(MB)", a.mbytes-b.mbytes "used(MB)", b.mbytes "free(MB)",
+ case when b.mbytes/a.mbytes < 0.05 and b.mbytes/1024 < 2 then to_char(trunc(b.mbytes*100/a.mbytes,2))||' <-- Caution!!' else to_char(trunc(b.mbytes*100/a.mbytes,2))
+ end as free_pct
+from
+(select nvl(tablespace_name,'[[Total]]') as tablespace_name, sum(bytes)/1024/1024 Mbytes from dba_data_files
+where tablespace_name like upper('%&__tbs%')
+group by rollup(tablespace_name)) A,
+(select nvl(tablespace_name,'[[Total]]') as tablespace_name, sum(bytes)/1024/1024 Mbytes from dba_free_space
+where tablespace_name like upper('%&__tbs%')
+group by rollup(tablespace_name)) B
+where a.tablespace_name=b.tablespace_name(+)
+order by a.tablespace_name
 /

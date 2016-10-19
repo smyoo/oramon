@@ -1,9 +1,9 @@
 /***********************************************
 <<Desciption>>
-List up TABLE information
+Check TABLESPACE usage
 
 <<Usage>>
-SQL> @tbs TABLE_NAME
+SQL> @tbs PART_OF_NAME
 ************************************************/
 
 @env
